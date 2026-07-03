@@ -213,36 +213,34 @@ function App() {
       : nearbyPlaces.filter((place) => place.category === placeFilter);
 
   async function searchDestinations(value) {
-    setForm({ ...form, destination: value });
+  setForm({ ...form, destination: value });
 
-    if (value.length < 2) {
-      setDestinationSuggestions([]);
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          value
-        )}&limit=8&addressdetails=1`
-      );
-
-      const data = await response.json();
-
-      setDestinationSuggestions(
-        data.map((item) => ({
-          label: item.display_name,
-          value: item.display_name,
-          lat: Number(item.lat),
-          lng: Number(item.lon),
-        }))
-      );
-
-      setShowSuggestions(true);
-    } catch {
-      setDestinationSuggestions([]);
-    }
+  if (value.length < 2) {
+    setDestinationSuggestions([]);
+    return;
   }
+
+  try {
+    const response = await fetch(
+      `https://voyagr-travel-app.onrender.com/api/geocode?q=${encodeURIComponent(value)}`
+    );
+
+    const data = await response.json();
+
+    setDestinationSuggestions(
+      data.map((item) => ({
+        label: item.display_name,
+        value: item.display_name,
+        lat: Number(item.lat),
+        lng: Number(item.lon),
+      }))
+    );
+
+    setShowSuggestions(true);
+  } catch {
+    setDestinationSuggestions([]);
+  }
+}
 
   async function runSearch(event) {
     event?.preventDefault();
