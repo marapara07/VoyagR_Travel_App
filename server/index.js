@@ -55,4 +55,59 @@ function demoItinerary(trip) {
 }
 
 const port = process.env.PORT || 8787;
+
+app.get("/api/geocode", async (req, res) => {
+  try {
+    const q = req.query.q;
+
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=8&addressdetails=1`,
+      {
+        headers: {
+          "User-Agent": "VoyagR Travel App"
+        }
+      }
+    );
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: "Geocoding failed" });
+  }
+});
+
+app.post("/api/places", async (req, res) => {
+  try {
+    const { lat, lng, radiusKm } = req.body;
+    const radius = Math.min(Number(radiusKm) * 1000, 50000);
+
+    const query = `
+      [out:json][timeout:25];
+      (
+        node["tourism"~"hotel|hostel|guest_house|apartment"](around:${radius},${lat},${lng});
+        way["tourism"~"hotel|hostel|guest_house|apartment"](around:${radius},${lat},${lng});
+        relation["tourism"~"hotel|hostel|guest_house|apartment"](around:${radius},${lat},${lng});
+
+        node["tourism"~"attraction|museum|viewpoint|gallery|theme_park|zoo"](around:${radius},${lat},${lng});
+        way["tourism"~"attraction|museum|viewpoint|gallery|theme_park|zoo"](around:${radius},${lat},${lng});
+        relation["tourism"~"attraction|museum|viewpoint|gallery|theme_park|zoo"](around:${radius},${lat},${lng});
+
+        node["amenity"~"restaurant|cafe|bar|pub|fast_food"](around:${radius},${lat},${lng});
+        way["amenity"~"restaurant|cafe|bar|pub|fast_food"](around:${radius},${lat},${lng});
+        relation["amenity"~"restaurant|cafe|bar|pub|fast_food"](around:${radius},${lat},${lng});
+      );
+      out center tags 160;
+    `;
+
+    const response = await fetch("https://overpass-api.de/api/interpreter", {
+      method: "POST",
+      body: query,
+    });
+
+    const data = await response.json();
+    res.json(data.elements || []);
+  } catch (error) {
+    res.status(500).json({ error: "Places search failed" });
+  }
+});
 app.listen(port, () => console.log(`Voyagr API running on http://localhost:${port}`));

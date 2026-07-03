@@ -1,5 +1,7 @@
 import { destinations } from "../data/mockTravelData";
 
+const API_BASE_URL = "https://voyagr-travel-app.onrender.com";
+
 export function estimateDays(start, end) {
   if (!start || !end) return 4;
   const days = Math.ceil((new Date(end) - new Date(start)) / 86400000) + 1;
@@ -22,10 +24,12 @@ export function distanceKm(aLat, aLng, bLat, bLng) {
 
 export async function geocodeDestination(destination) {
   const response = await fetch(
-    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-      destination
-    )}&limit=1`
+    `${API_BASE_URL}/api/geocode?q=${encodeURIComponent(destination)}`
   );
+
+  if (!response.ok) {
+    throw new Error("Geocoding request failed");
+  }
 
   const json = await response.json();
 
@@ -42,37 +46,19 @@ export async function geocodeDestination(destination) {
 }
 
 export async function fetchOverpassData(lat, lng, radiusKm) {
-  const radius = Math.min(Number(radiusKm) * 1000, 50000);
-
-  const query = `
-    [out:json][timeout:25];
-    (
-      node["tourism"~"hotel|hostel|guest_house|apartment"](around:${radius},${lat},${lng});
-      way["tourism"~"hotel|hostel|guest_house|apartment"](around:${radius},${lat},${lng});
-      relation["tourism"~"hotel|hostel|guest_house|apartment"](around:${radius},${lat},${lng});
-
-      node["tourism"~"attraction|museum|viewpoint|gallery|theme_park|zoo"](around:${radius},${lat},${lng});
-      way["tourism"~"attraction|museum|viewpoint|gallery|theme_park|zoo"](around:${radius},${lat},${lng});
-      relation["tourism"~"attraction|museum|viewpoint|gallery|theme_park|zoo"](around:${radius},${lat},${lng});
-
-      node["amenity"~"restaurant|cafe|bar|pub|fast_food"](around:${radius},${lat},${lng});
-      way["amenity"~"restaurant|cafe|bar|pub|fast_food"](around:${radius},${lat},${lng});
-      relation["amenity"~"restaurant|cafe|bar|pub|fast_food"](around:${radius},${lat},${lng});
-
-      node["leisure"~"park|water_park|sports_centre|fitness_centre"](around:${radius},${lat},${lng});
-      way["leisure"~"park|water_park|sports_centre|fitness_centre"](around:${radius},${lat},${lng});
-      relation["leisure"~"park|water_park|sports_centre|fitness_centre"](around:${radius},${lat},${lng});
-    );
-    out center tags 160;
-  `;
-
-  const response = await fetch("https://overpass-api.de/api/interpreter", {
+  const response = await fetch(`${API_BASE_URL}/api/places`, {
     method: "POST",
-    body: query,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ lat, lng, radiusKm }),
   });
 
-  const json = await response.json();
-  return json.elements || [];
+  if (!response.ok) {
+    throw new Error("Places request failed");
+  }
+
+  return await response.json();
 }
 
 export function normalizePlaces(elements) {
@@ -105,8 +91,11 @@ export function normalizePlaces(elements) {
       website: element.tags?.website || element.tags?.["contact:website"] || "",
       phone: element.tags?.phone || element.tags?.["contact:phone"] || "",
       openingHours: element.tags?.opening_hours || "Opening hours not listed",
-      image:element.tags?.image || element.tags?.wikimedia_commons || element.tags?.["contact:image"] ||
-  "",
+      image:
+        element.tags?.image ||
+        element.tags?.wikimedia_commons ||
+        element.tags?.["contact:image"] ||
+        "",
     };
 
     if (["hotel", "hostel", "guest_house", "apartment"].includes(tourismType)) {
@@ -156,10 +145,9 @@ export function normalizePlaces(elements) {
         element.tags?.website || element.tags?.["contact:website"]
           ? "Online info available"
           : "Online booking not listed",
-      availability:
-        element.tags?.opening_hours
-          ? `Usually available: ${element.tags.opening_hours}`
-          : "Availability not listed online",
+      availability: element.tags?.opening_hours
+        ? `Usually available: ${element.tags.opening_hours}`
+        : "Availability not listed online",
     });
   });
 
@@ -198,7 +186,7 @@ export function fallbackItinerary({
     `Base stay: ${selectedStay?.name || "Selected stay"}`,
     `Trip length: ${days} days`,
     `Estimated cost: ${total}`,
-    ``,
+    "",
   ];
 
   for (let day = 1; day <= days; day++) {
@@ -211,19 +199,29 @@ export function fallbackItinerary({
 
     if (day === 1) {
       lines.push(`- 14:00 Check-in at ${selectedStay?.name || "your selected hotel"}`);
-      lines.push(`- 15:30 Get settled and walk around ${selectedStay?.address || destination}`);
+      lines.push(
+        `- 15:30 Get settled and walk around ${
+          selectedStay?.address || destination
+        }`
+      );
     } else {
       lines.push(`- 09:30 Breakfast near ${selectedStay?.name || "your stay"}`);
     }
 
     lines.push(`- 11:00 Visit ${first?.name || "a nearby place"}`);
-    lines.push(`- 13:30 Lunch or coffee nearby`);
+    lines.push("- 13:30 Lunch or coffee nearby");
     lines.push(`- 16:00 Continue with ${second?.name || "a local attraction"}`);
-    lines.push(`- 19:30 Evening plan: ${third?.name || "walk around the city center"}`);
-    lines.push(``);
+    lines.push(
+      `- 19:30 Evening plan: ${
+        third?.name || "walk around the city center"
+      }`
+    );
+    lines.push("");
   }
 
-  lines.push(`This itinerary uses only the places added by the user and adapts to the selected dates.`);
+  lines.push(
+    "This itinerary uses only the places added by the user and adapts to the selected dates."
+  );
 
   return lines.join("\n");
 }

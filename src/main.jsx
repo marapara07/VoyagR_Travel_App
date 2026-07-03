@@ -49,6 +49,8 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
+
+
 function App() {
   const [user, setUser] = useState(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
