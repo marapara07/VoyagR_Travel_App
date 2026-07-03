@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",
+    "@google/genai": "^2.10.0",
     "@vitejs/plugin-react": "latest",
     "concurrently": "latest",
     "cors": "latest",
