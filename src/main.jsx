@@ -326,7 +326,7 @@ function App() {
     };
 
     try {
-      const response = await fetch("http://localhost:8787/api/itinerary", {
+      const response = await fetch("https://voyagr-travel-app.onrender.com/api/itinerary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
