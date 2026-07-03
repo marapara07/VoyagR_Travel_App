@@ -1,0 +1,29 @@
+{
+  "name": "ai-travel-planner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "start:full": "concurrently \"npm run server\" \"npm run dev\""
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "@vitejs/plugin-react": "latest",
+    "concurrently": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "firebase": "^12.15.0",
+    "framer-motion": "latest",
+    "leaflet": "^1.9.4",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-leaflet": "^5.0.0",
+    "vite": "latest"
+  }
+}
