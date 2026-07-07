@@ -62,7 +62,7 @@ export default function ItinerarySection({
       <div className="panel itinerary-generator">
         <SectionTitle
           icon={<Wand2 />}
-          title="Gemini AI itinerary generator"
+          title="Itinerary generator"
           subtitle="Generate, edit and save your personalized travel plan."
         />
 

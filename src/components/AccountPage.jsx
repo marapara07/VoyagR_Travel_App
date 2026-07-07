@@ -330,7 +330,7 @@ export default function AccountPage({
           <button className="back-to-planner" type="button" onClick={() => setCurrentPage("planner")}>
             <ArrowLeft size={18} /> Back to planner
           </button>
-          <span className="sidebar-kicker">Voyagr account</span>
+          <span className="sidebar-kicker"></span>
           <h1>Your travel cockpit</h1>
           <p>
             Open favorites, edit saved trips, reorder itinerary events, and manage booking drafts from one polished command center.

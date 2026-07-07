@@ -20,7 +20,7 @@ export default function SearchPanel({
     <form id="explore" className="panel search-panel" onSubmit={runSearch}>
       <div className="search-hero">
         <div className="hero-copy">
-          <span className="eyebrow"><Sparkles size={16} /> AI route builder</span>
+          <span className="eyebrow"><Sparkles size={16} /> </span>
           <h1>Plan a greener, smarter trip in a few clicks.</h1>
           <p>
             Choose a destination, budget and travel radius. Voyagr gathers stays, nearby places,
