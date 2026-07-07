@@ -12,12 +12,12 @@ npm run start:full
 
 Open the Vite URL, usually `http://localhost:5173`.
 
-## Claude API key
+## Gemini API key
 
 Create an Anthropic Console account, add billing/credits if required, go to API Keys, create a key, copy it once, then paste it in `.env`:
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-your-key-here
+GEMINI_API_KEY=sk-ant-your-key-here
 PORT=8787
 ```
 
